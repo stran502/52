@@ -1,8 +1,8 @@
 #ifndef __52_H__
 #define __52_H__
-
+//ä»¥ä¸‹åŸºäº11.0592 52å•ç‰‡æœº
 /*
-¼ÆÊ±Æ÷ÖĞ¶ÏÄ£°å
+è®¡æ—¶å™¨ä¸­æ–­æ¨¡æ¿
 void Time1() interrupt 1
 {
 	static unsigned int count=0;
@@ -20,18 +20,18 @@ void Time1() interrupt 1
 */
 
 
-//52Ä£¿é¼¯ºÏ
+//52æ¨¡å—é›†åˆ
 
-//¶ÀÁ¢¼üÅÌÄ£¿é
+//ç‹¬ç«‹é”®ç›˜æ¨¡å—
 unsigned int Lkey();
 
-//ÊıÂë¹ÜÏÔÊ¾
+//æ•°ç ç®¡æ˜¾ç¤º
 void NixLed(unsigned int Num,unsigned int Local,unsigned int Flag);
 
-//¾ØÕó¼üÅÌÄ£¿é
+//çŸ©é˜µé”®ç›˜æ¨¡å—
 unsigned int Matkey();
 
-//LCDÄ£¿é
+//LCDæ¨¡å—
 void LCD_Init();
 void LCD_ShowChar(unsigned char Line,unsigned char Column,char Char);
 void LCD_ShowString(unsigned char Line,unsigned char Column,char *String);
@@ -40,10 +40,10 @@ void LCD_ShowSignedNum(unsigned char Line,unsigned char Column,int Number,unsign
 void LCD_ShowHexNum(unsigned char Line,unsigned char Column,unsigned int Number,unsigned char Length);
 void LCD_ShowBinNum(unsigned char Line,unsigned char Column,unsigned int Number,unsigned char Length);
 
-//Ñ­»·ÑÓÊ±Ä£¿é
+//å¾ªç¯å»¶æ—¶æ¨¡å—
 void Delay(unsigned int ms);
 
-//¼ÆÊ±Æ÷³õÊ¼»¯
+//è®¡æ—¶å™¨åˆå§‹åŒ–
 void Time0_Init();
 void Time1_Init();
 
