@@ -1,5 +1,5 @@
 #include <REGX52.H>
-//以下基于11.0592 52单片机
+
 /**
   * @brief  循环延时
   * @param  ms 循环延时多少毫秒
@@ -336,7 +336,7 @@ void Time0_Init()
   * @param  无
   * @retval 无
   */
-void Time1_Init()
+void Time1_Init()		//和上面Time0_Init()函数的一样
 {
 	TMOD&=0x0F;
 	TMOD|=0x10;
@@ -347,4 +347,179 @@ void Time1_Init()
 	ET1=1;
 	EA=1;
 	PT1=0;
+}
+
+
+sbit DS1302_SCK=P3^6;
+sbit DS1302_IO=P3^4;
+sbit DS1302_CE=P3^5;
+void DS1302_Init()
+{
+	DS1302_SCK=0;
+	DS1302_CE=0;
+}
+void DS1302_Write(unsigned char Byte,unsigned char Data)
+{
+	int i;
+	DS1302_CE=1;
+	for(i=0;i<8;i++)
+	{
+		DS1302_IO=Byte&(0x01<<i);
+		DS1302_SCK=1;
+		DS1302_SCK=0;
+	}
+		for(i=0;i<8;i++)
+	{
+		DS1302_IO=Data&(0x01<<i);
+		DS1302_SCK=1;
+		DS1302_SCK=0;
+	}
+	DS1302_CE=0;
+}
+unsigned char DS1302_Read(unsigned char Byte)
+{
+	unsigned int i,temp=0;
+
+	DS1302_CE=1;
+	for(i=0;i<8;i++)
+	{
+		DS1302_IO=Byte&(0x01<<i);
+		DS1302_SCK=0;
+		DS1302_SCK=1;
+	}
+	for(i=0;i<8;i++)
+	{
+			DS1302_SCK=1;
+			DS1302_SCK=0;
+			if(DS1302_IO)
+			temp|=0x01<<i;
+	}
+	DS1302_CE=0;
+	DS1302_IO=0;
+	return temp/16*10+temp%16;
+}
+
+void Ser_Init()
+{
+	SCON=0x50;
+	PCON|=0x80;
+	TMOD&=0x0F;
+	TMOD|=0x20;
+	TL1=0xF4;
+	TH1=0xF4;
+	TR1=1;
+	ET1=0;
+	ES=1;
+	EA=1;
+}
+
+void Ser_Sent(unsigned char Byte)
+{
+	SBUF=Byte;
+	while(TI==0);
+	TI=0;
+}
+
+sbit RCK=P3^5;
+sbit SCK=P3^6;
+sbit SER=P3^4;
+
+void LEDP(unsigned char Col,unsigned char Row)
+{
+	int i=1;
+	SCK=0;
+	P0=~(0x80>>(Row-1));
+	
+	for(;i<=8;i++,Col<<=1)
+	{
+		SER=Col&0x80;
+		SCK=1;
+		SCK=0;
+	}
+	RCK=1;
+	RCK=0;
+	Delay(1);
+	P0=0xFF;
+}
+
+#define SLAVE 0xA0
+sbit I2C_SDA=P2^0;
+sbit I2C_SCL=P2^1;
+void I2C_Start()
+{
+	I2C_SDA=1;
+	I2C_SCL=1;
+	I2C_SDA=0;
+	I2C_SCL=0;
+	
+}
+void I2C_Stop()
+{
+	I2C_SDA=0;
+	I2C_SCL=1;
+	I2C_SDA=1;
+}
+void 	I2C_Send(unsigned char Data)
+{
+	unsigned char i;
+	for(i=0;i<8;i++)
+		{
+			I2C_SDA=Data&0x80>>i;
+			I2C_SCL=1;
+			I2C_SCL=0;
+		}
+}
+unsigned char I2C_Receive()
+{
+	unsigned char Data=0x00,i;
+	I2C_SDA=1;
+	for(i=0;i<8;i++)
+		{
+			I2C_SCL=1;
+			if(I2C_SDA) Data|=0x80>>i;
+			I2C_SCL=0;
+		}
+	return Data;
+}
+void I2C_Send_Ack(bit Flag)
+{
+	I2C_SDA=Flag;
+	I2C_SCL=1;
+	I2C_SCL=0;
+}
+bit I2C_Receive_Ack()
+{
+	bit Flag;
+	I2C_SDA=1;
+	I2C_SCL=1;
+	Flag=I2C_SDA;
+	I2C_SCL=0;
+	return Flag;
+}
+void I2C_Write(unsigned char Addr,unsigned char Data)
+{
+	I2C_Start();
+	I2C_Send(SLAVE);
+	I2C_Receive_Ack();
+	I2C_Send(Addr);
+	I2C_Receive_Ack();
+	I2C_Send(Data);
+	I2C_Receive_Ack();
+	I2C_Stop();
+}
+unsigned char I2C_Read(unsigned char Addr)
+{
+	unsigned char Data;
+	I2C_Start();
+	I2C_Send(SLAVE);
+	I2C_Receive_Ack();
+	I2C_Send(Addr);
+	I2C_Receive_Ack();
+	I2C_Start();
+	I2C_Send(SLAVE+1);
+	I2C_Receive_Ack();
+	Data=I2C_Receive();
+	I2C_Send_Ack(1);
+	I2C_Stop();
+	return Data;
 }
