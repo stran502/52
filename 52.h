@@ -1,6 +1,6 @@
 #ifndef __52_H__
 #define __52_H__
-//以下基于11.0592 52单片机
+
 /*
 计时器中断模板
 void Time1() interrupt 1
@@ -46,5 +46,44 @@ void Delay(unsigned int ms);
 //计时器初始化
 void Time0_Init();
 void Time1_Init();
+
+//DS1302
+void DS1302_Init();
+void DS1302_Write(unsigned char Byte,unsigned char Data);
+unsigned char DS1302_Read(unsigned char Byte);
+
+
+//串口通信
+void Ser_Init();
+void Ser_Sent(unsigned char Byte);
+
+/*
+void Ser_A() interrupt 4
+{
+	if(RI)
+	{
+		 =SBUF;
+
+		RI=0;
+	}
+}
+*/
+
+
+//LED点阵屏
+void LEDP(unsigned char Col,unsigned char Row);
+
+//I2C总线
+void I2C_Start();
+void I2C_Stop();
+void 	I2C_Send(unsigned char Data);
+unsigned char I2C_Receive();
+void I2C_Send_Ack(bit Flag);
+bit I2C_Receive_Ack();
+
+//AT24C02
+void I2C_Write(unsigned char Addr,unsigned char Data);
+unsigned char I2C_Read(unsigned char Addr);
+
 
 #endif
