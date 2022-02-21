@@ -82,8 +82,8 @@ void I2C_Send_Ack(bit Flag);
 bit I2C_Receive_Ack();
 
 //AT24C02
-void I2C_Write(unsigned char Addr,unsigned char Data);
-unsigned char I2C_Read(unsigned char Addr);
+void AT24C02_Write(unsigned char Addr,unsigned char Data);
+unsigned char AT24C02_Read(unsigned char Addr);
 
 
 #endif
