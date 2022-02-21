@@ -349,15 +349,25 @@ void Time1_Init()		//和上面Time0_Init()函数的一样
 	PT1=0;
 }
 
-
+//DS1302 芯片
 sbit DS1302_SCK=P3^6;
 sbit DS1302_IO=P3^4;
 sbit DS1302_CE=P3^5;
+/**
+  * @brief  DS1302初始化
+  * @retval 无
+  */
 void DS1302_Init()
 {
 	DS1302_SCK=0;
 	DS1302_CE=0;
 }
+/**
+  * @brief  DS1302写入
+  * @param  Byte 地址 值为“年月日时分秒的规定地址”
+  * @param  Data	初始化Byte对应时间的值
+	* @retval 无
+  */
 void DS1302_Write(unsigned char Byte,unsigned char Data)
 {
 	int i;
@@ -376,6 +386,11 @@ void DS1302_Write(unsigned char Byte,unsigned char Data)
 	}
 	DS1302_CE=0;
 }
+/**
+  * @brief  DS1302读出
+  * @param 	Byte 地址 值为“年月日时分秒的规定地址” 
+  * @retval Byte 地址中的值
+  */
 unsigned char DS1302_Read(unsigned char Byte)
 {
 	unsigned int i,temp=0;
@@ -399,6 +414,11 @@ unsigned char DS1302_Read(unsigned char Byte)
 	return temp/16*10+temp%16;
 }
 
+//串口通信
+/**
+  * @brief  串口通信初始化
+  * @retval 无
+  */
 void Ser_Init()
 {
 	SCON=0x50;
@@ -412,7 +432,11 @@ void Ser_Init()
 	ES=1;
 	EA=1;
 }
-
+/**
+  * @brief  串口发送
+  * @param  Byte 从单片机发送数据
+  * @retval 无
+  */
 void Ser_Sent(unsigned char Byte)
 {
 	SBUF=Byte;
@@ -420,10 +444,16 @@ void Ser_Sent(unsigned char Byte)
 	TI=0;
 }
 
+//LED点阵屏
 sbit RCK=P3^5;
 sbit SCK=P3^6;
 sbit SER=P3^4;
-
+/**
+  * @brief  LED点阵屏控制输出
+  * @param  Col 哪几行亮 用数的二进制中的1对应哪几行亮 0x00-0xFF
+  * @param  Row 哪一列亮	用十进制表示某一列亮 1-8
+  * @retval 无
+  */
 void LEDP(unsigned char Col,unsigned char Row)
 {
 	int i=1;
@@ -442,9 +472,17 @@ void LEDP(unsigned char Col,unsigned char Row)
 	P0=0xFF;
 }
 
-#define SLAVE 0xA0
+
+
+//I2C 通信
+#define SLAVE 0xA0		//AT24C02固定地址 0xA0为写  0xA1为读
 sbit I2C_SDA=P2^0;
 sbit I2C_SCL=P2^1;
+
+/**
+  * @brief  I2C帧开始 
+  * @retval 无
+  */
 void I2C_Start()
 {
 	I2C_SDA=1;
@@ -453,12 +491,22 @@ void I2C_Start()
 	I2C_SCL=0;
 	
 }
+/**
+  * @brief  I2C帧结束  
+  * @retval 无
+  */
 void I2C_Stop()
 {
 	I2C_SDA=0;
 	I2C_SCL=1;
 	I2C_SDA=1;
 }
+
+/**
+  * @brief  I2C发送
+  * @param   Data 要发送的数据
+  * @retval 无
+  */
 void 	I2C_Send(unsigned char Data)
 {
 	unsigned char i;
@@ -469,6 +517,10 @@ void 	I2C_Send(unsigned char Data)
 			I2C_SCL=0;
 		}
 }
+/**
+  * @brief  I2C接收
+  * @retval 无
+  */
 unsigned char I2C_Receive()
 {
 	unsigned char Data=0x00,i;
@@ -481,12 +533,21 @@ unsigned char I2C_Receive()
 		}
 	return Data;
 }
+/**
+  * @brief  发送ACK应答
+  * @param  Flag ACK应答 0-1
+  * @retval 无
+  */
 void I2C_Send_Ack(bit Flag)
 {
 	I2C_SDA=Flag;
 	I2C_SCL=1;
 	I2C_SCL=0;
 }
+/**
+  * @brief   接收ACK应答	
+  * @retval  从机ACK应答
+  */
 bit I2C_Receive_Ack()
 {
 	bit Flag;
@@ -496,7 +557,15 @@ bit I2C_Receive_Ack()
 	I2C_SCL=0;
 	return Flag;
 }
-void I2C_Write(unsigned char Addr,unsigned char Data)
+
+//AT24C02
+/**
+  * @brief  写入AT24C02 
+  * @param  Addr AT24C02芯片中的某处地址 0-255
+  * @param  Data 要写入AT24C02的数据
+  * @retval 无
+  */
+void AT24C02_Write(unsigned char Addr,unsigned char Data)
 {
 	I2C_Start();
 	I2C_Send(SLAVE);
@@ -507,7 +576,12 @@ void I2C_Write(unsigned char Addr,unsigned char Data)
 	I2C_Receive_Ack();
 	I2C_Stop();
 }
-unsigned char I2C_Read(unsigned char Addr)
+/**
+  * @brief  AT24C02读出
+  * @param  Addr 读出AT24C02的某处地址的值 0-255 
+  * @retval AT24C02中Addr里的数据
+  */
+unsigned char AT24C02_Read(unsigned char Addr)
 {
 	unsigned char Data;
 	I2C_Start();
